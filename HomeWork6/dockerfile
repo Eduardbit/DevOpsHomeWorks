@@ -1,4 +1,23 @@
 FROM tomcat:8.0
-EXPOSE 8080
-ADD hello-1.0.war /usr/local/tomcat/webapps/
+RUN \
+  apt-get update && \
+  apt-get install -y maven && \
+  apt-get install -y git && \
+#  apt-get install -y openjdk-11-jdk
+  apt-get install -y --reinstall software-properties-common && \
+  add-apt-repository -y "deb http://ppa.launchpad.net/webupd8team/java/ubuntu xenial main" && \
+  apt-get update && \
+#  apt-get upgrade && \
+  echo oracle-java8-installer shared/accepted-oracle-license-v1-1 select true | debconf-set-selections && \
+  apt install -y oracle-java8-installer
+ENV JAVA_HOME /usr/lib/jvm/java-8-oracle
+RUN \
+  mkdir appsource && \
+  cd appsource && \
+  git clone https://github.com/boxfuse/boxfuse-sample-java-war-hello.git && \
+  cd boxfuse-sample-java-war-hello && \
+  mvn package && \
+  cd target && \
+  cp hello-1.0.war /usr/local/tomcat/webapps/
+EXPOSE 8080    
 CMD ["catalina.sh", "run"]
